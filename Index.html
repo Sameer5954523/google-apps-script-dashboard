@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPIDEY-OS: Symbiote Max Overdrive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --spider-neon-red: #ff003c;
+            --spider-dark-abyss: #0d0004;
+            --symbiote-purple: #a826ff;
+            --symbiote-dark-purple: #1a0033;
+            --deep-black: #050508;
+            --panel-bg: #09090e;
+            --glow-red: 0 0 1.5vh rgba(255, 0, 60, 0.4);
+            --glow-purple: 0 0 1.5vh rgba(168, 38, 255, 0.4);
+            --font-display: 'Orbitron', sans-serif;
+            --font-sans: 'Rajdhani', sans-serif;
+
+            /* Status Theme Colors */
+            --status-yellow-bg: #ffd700;
+            --status-yellow-text: #000000;
+            --status-grey-bg: #4a5568;
+            --status-grey-text: #ffffff;
+            --status-green-bg: #00ff66;
+            --status-green-text: #000000;
+            
+            /* Reschedule Theme: WHITE */
+            --status-reschedule-bg: #ffffff;
+            --status-reschedule-text: #000000;
+
+            /* Shocking Pink Theme for On Call */
+            --shocking-pink: #ff007f;
+            --glow-pink: 0 0 15px rgba(255, 0, 127, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--deep-black);
+            color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 0.6vh 0.6vw;
+            position: relative;
+        }
+
+        #web-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .film-ticker-belt {
+            z-index: 10;
+            background: #000000;
+            border-bottom: 0.2vh solid var(--spider-neon-red);
+            padding: 0.3vh 0;
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 0.5vh;
+            flex-shrink: 0;
+        }
+
+        .belt-track-right {
+            display: flex;
+            white-space: nowrap;
+            animation: slideRight 32s linear infinite;
+        }
+
+        .belt-item {
+            font-family: var(--font-display);
+            font-size: calc(0.38rem + 0.25vw);
+            color: var(--symbiote-purple);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-right: 5vw;
+        }
+
+        header {
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #000000;
+            border: 0.2vh solid var(--spider-neon-red);
+            box-shadow: var(--glow-red);
+            padding: 0.8vh 1.2vw;
+            border-radius: 4px;
+            margin-bottom: 0.6vh;
+            height: 7.5vh;
+            min-height: 50px;
+            flex-shrink: 0;
+        }
+
+        .brand-core {
+            display: flex;
+            align-items: center;
+            gap: 0.8vw;
+        }
+
+        .brand-core i {
+            font-size: calc(0.9rem + 1vw);
+            color: var(--spider-neon-red);
+            text-shadow: 0 0 10px var(--spider-neon-red);
+            animation: smoothPendulum 3s infinite ease-in-out alternate;
+            transform-origin: top center;
+        }
+
+        .brand-core h1 {
+            font-family: var(--font-display);
+            font-size: calc(0.75rem + 0.5vw);
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
+            line-height: 1.1;
+        }
+
+        .kpi-deck {
+            display: flex;
+            gap: 0.8vw;
+        }
+
+        .kpi-card {
+            background: #000000;
+            border: 0.2vh solid var(--symbiote-purple);
+            box-shadow: var(--glow-purple);
+            padding: 0.3vh 1vw;
+            border-radius: 4px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kpi-card .lbl {
+            font-size: calc(0.35rem + 0.2vw);
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .kpi-card .val {
+            font-family: var(--font-display);
+            font-size: calc(0.65rem + 0.45vw);
+            color: #ffffff;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .day-scroller {
+            z-index: 10;
+            display: flex;
+            background: #000000;
+            border: 0.2vh solid var(--spider-neon-red);
+            box-shadow: var(--glow-red);
+            padding: 0.3vh;
+            border-radius: 4px;
+            margin-bottom: 0.6vh;
+            justify-content: space-between;
+            height: 5vh;
+            min-height: 35px;
+            flex-shrink: 0;
+        }
+
+        .day-node {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: calc(0.45rem + 0.3vw);
+            color: #475569;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+
+        .day-node:hover {
+            color: var(--spider-neon-red);
+            background: rgba(255, 0, 60, 0.1);
+        }
+
+        .day-node.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--spider-neon-red) 0%, #4a0012 100%);
+            box-shadow: 0 0 10px var(--spider-neon-red);
+        }
+
+        .workspace-layout {
+            z-index: 5;
+            flex: 1;
+            display: flex;
+            gap: 0.6vw;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .grid-core-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            border: 0.2vh solid var(--spider-neon-red);
+            box-shadow: var(--glow-red);
+            border-radius: 4px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .grid-scroller-viewport {
+            flex: 1;
+            overflow: auto;
+            width: 100%;
+            height: 100%;
+        }
+
+        .grid-matrix-table-frame {
+            display: inline-block;
+            min-width: 100%;
+            width: max-content; 
+        }
+
+        .header-timeline-row {
+            display: grid;
+            grid-template-columns: 85px repeat(13, 135px);
+            background: #000000;
+            border-bottom: 0.2vh solid var(--spider-neon-red);
+            height: 4.8vh;
+            min-height: 38px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .agent-axis-cell {
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: calc(0.5rem + 0.25vw);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            border-right: 0.15vw solid #1e1e2f;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .agent-axis-cell:last-child { border-right: none; }
+        .agent-axis-cell:nth-child(even) { color: var(--symbiote-purple); }
+        .agent-axis-cell:nth-child(odd):not(:first-child) { color: #ff3366; }
+
+        .grid-matrix-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-row {
+            display: grid;
+            grid-template-columns: 85px repeat(13, 135px);
+            border-bottom: 0.15vh solid #12121a;
+            align-items: center;
+            height: 10.5vh; 
+            min-height: 70px;
+        }
+        .timeline-row:hover { background: rgba(168, 38, 255, 0.04); }
+        .timeline-row:last-child { border-bottom: none; }
+
+        .time-axis-node {
+            background: #000000;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: calc(0.45rem + 0.22vw);
+            color: #ffffff;
+            border-right: 0.2vh solid var(--spider-neon-red);
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+
+        .matrix-cell-slot {
+            padding: 0.3vh 0.3vw;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 0.15vw solid #12121a;
+            overflow: hidden;
+        }
+        .matrix-cell-slot:last-child { border-right: none; }
+
+        .spidey-suit-card {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            border: 0.2vh solid transparent;
+        }
+
+        .spidey-suit-card.suit-free {
+            background: #0c0c14;
+            border-color: #1e1e2f;
+            color: #475569;
+        }
+
+        .spidey-suit-card.suit-disabled {
+            background: #050400;
+            border-color: rgba(255, 215, 0, 0.3);
+            cursor: not-allowed;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .spidey-suit-card.suit-disabled svg.web-icon {
+            width: 85%;
+            height: 85%;
+            fill: none;
+            stroke: #ffd700;
+            stroke-width: 1.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.85;
+            filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+            position: absolute;
+        }
+
+        .spidey-suit-card.suit-disabled .na-pulse-text {
+            position: absolute;
+            font-family: var(--font-display);
+            font-size: 8px;
+            font-weight: 900;
+            color: #ffd700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+            background: rgba(0, 0, 0, 0.75);
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            animation: yellowGlowPulse 1.8s infinite ease-in-out;
+            z-index: 2;
+        }
+
+        @keyframes yellowGlowPulse {
+            0% { opacity: 0.4; transform: scale(0.95); box-shadow: 0 0 2px rgba(255, 215, 0, 0.2); }
+            50% { opacity: 1; transform: scale(1.05); box-shadow: 0 0 12px rgba(255, 215, 0, 0.8); }
+            100% { opacity: 0.4; transform: scale(0.95); box-shadow: 0 0 2px rgba(255, 215, 0, 0.2); }
+        }
+
+        .spidey-suit-card.suit-booked {
+            background: #110206;
+            border-color: var(--spider-neon-red);
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .spidey-suit-card.suit-not-interested {
+            background: var(--status-yellow-bg) !important;
+            border-color: #b89b00 !important;
+        }
+        .spidey-suit-card.suit-not-interested .suit-val,
+        .spidey-suit-card.suit-not-interested .suit-lbl {
+            color: var(--status-yellow-text) !important;
+        }
+
+        .spidey-suit-card.suit-no-pickup {
+            background: var(--status-grey-bg) !important;
+            border-color: #2d3748 !important;
+        }
+        .spidey-suit-card.suit-no-pickup .suit-val,
+        .spidey-suit-card.suit-no-pickup .suit-lbl {
+            color: var(--status-grey-text) !important;
+        }
+
+        .spidey-suit-card.suit-form-completed {
+            background: var(--status-green-bg) !important;
+            border-color: #00b344 !important;
+        }
+        .spidey-suit-card.suit-form-completed .suit-val,
+        .spidey-suit-card.suit-form-completed .suit-lbl {
+            color: var(--status-green-text) !important;
+            font-weight: 900 !important;
+        }
+
+        .spidey-suit-card.suit-does-not-qualify {
+            background: #4a0012 !important;
+            border-color: var(--spider-neon-red) !important;
+        }
+        .spidey-suit-card.suit-does-not-qualify .suit-val,
+        .spidey-suit-card.suit-does-not-qualify .suit-lbl {
+            color: #ffffff !important;
+        }
+
+        .spidey-suit-card.suit-reschedule {
+            background: var(--status-reschedule-bg) !important;
+            border-color: #cccccc !important;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+        .spidey-suit-card.suit-reschedule .suit-val,
+        .spidey-suit-card.suit-reschedule .suit-lbl {
+            color: var(--status-reschedule-text) !important;
+        }
+
+        .spidey-suit-card.suit-on-call {
+            background: #0d0006 !important;
+            border-color: var(--shocking-pink) !important;
+            position: relative;
+            animation: pinkCardGlow 1.6s infinite ease-in-out alternate;
+        }
+
+        .spidey-suit-card.suit-on-call svg.pink-web-anim {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--shocking-pink);
+            stroke-width: 1.3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.85;
+            filter: drop-shadow(0 0 8px var(--shocking-pink));
+            z-index: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: webPulseSpin 4s ease-in-out infinite alternate;
+        }
+
+        .spidey-suit-card.suit-on-call .suit-val,
+        .spidey-suit-card.suit-on-call .suit-lbl {
+            color: #ffffff !important;
+            text-shadow: 0 0 8px var(--shocking-pink), 0 0 12px #ff55b8;
+            z-index: 2;
+            position: relative;
+        }
+
+        @keyframes pinkCardGlow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 0, 127, 0.4), inset 0 0 5px rgba(255, 0, 127, 0.2);
+                border-color: #ff007f;
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(255, 0, 127, 0.9), inset 0 0 12px rgba(255, 0, 127, 0.5);
+                border-color: #ff66b2;
+            }
+        }
+
+        @keyframes webPulseSpin {
+            0% {
+                transform: translate(-50%, -50%) scale(0.9) rotate(-6deg);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.12) rotate(0deg);
+                opacity: 0.95;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.9) rotate(6deg);
+                opacity: 0.6;
+            }
+        }
+
+        .spidey-suit-card:not(.suit-disabled):hover {
+            transform: scale(1.02);
+            border-color: #ffffff !important;
+            box-shadow: 0 0 1vh rgba(255,255,255,0.3);
+        }
+
+        .spidey-suit-card.suit-active-focus {
+            border-color: #ffffff !important;
+            box-shadow: var(--glow-purple) !important;
+            opacity: 0.9;
+        }
+
+        .spidey-suit-card .suit-lbl {
+            font-family: var(--font-display);
+            font-size: 9.5px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 900;
+            text-align: center;
+            width: 95%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .spidey-suit-card .suit-val {
+            font-size: 12.5px;
+            font-weight: 700;
+            max-width: 95%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+
+        .fixed-sidebar-hud {
+            width: 22vw;
+            min-width: 240px;
+            max-width: 320px;
+            background: #000000;
+            border: 0.2vh solid var(--spider-neon-red);
+            box-shadow: var(--glow-red);
+            border-radius: 4px;
+            padding: 1.2vh 1vw;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        .hud-static-title {
+            font-family: var(--font-display);
+            font-size: calc(0.55rem + 0.3vw);
+            color: var(--spider-neon-red);
+            border-bottom: 0.2vh solid var(--spider-neon-red);
+            padding-bottom: 0.8vh;
+            margin-bottom: 1.2vh;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 0.6vw;
+            letter-spacing: 1px;
+        }
+
+        .hud-empty-placeholder {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: calc(0.42rem + 0.2vw);
+            letter-spacing: 1px;
+            gap: 1.5vh;
+            padding: 0.8vh;
+        }
+
+        .hud-empty-placeholder i {
+            font-size: calc(1.3rem + 1.2vw);
+            color: #1e1e2f;
+        }
+
+        .hud-data-profile {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .hud-profile-scroll {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 0.8vh;
+            padding-right: 0.3vw;
+        }
+
+        .hud-profile-scroll::-webkit-scrollbar { width: 4px; }
+        .hud-profile-scroll::-webkit-scrollbar-thumb { background: var(--symbiote-purple); }
+
+        .hud-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.8vh;
+            border-bottom: 0.15vh solid #12121a;
+            padding-bottom: 0.4vh;
+        }
+
+        .hud-row span:first-child { 
+            color: var(--symbiote-purple); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            font-size: calc(0.38rem + 0.2vw); 
+            font-family: var(--font-display); 
+            letter-spacing: 0.5px;
+        }
+        
+        .hud-row span:last-child { 
+            font-weight: 700; 
+            color: #ffffff; 
+            font-size: 13.5px;
+            margin-top: 0.1vh;
+            word-break: break-all;
+        }
+
+        .hud-select, .hud-input {
+            width: 100%;
+            background: #09090e;
+            border: 0.2vh solid var(--spider-neon-red);
+            color: #ffffff;
+            padding: 0.6vh;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-weight: bold;
+            outline: none;
+            font-size: 12px;
+            margin-top: 0.4vh;
+        }
+        .hud-select:focus, .hud-input:focus { border-color: var(--symbiote-purple); box-shadow: var(--glow-purple); }
+
+        /* Comment Input Field Styling */
+        .hud-textarea {
+            width: 100%;
+            background: #000000;
+            border: 0.2vh solid var(--spider-neon-red);
+            color: #ffffff;
+            padding: 0.6vh;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 11.5px;
+            outline: none;
+            margin-top: 0.6vh;
+            resize: none;
+            display: none;
+        }
+        .hud-textarea:focus { border-color: var(--symbiote-purple); box-shadow: var(--glow-purple); }
+
+        .char-counter {
+            font-size: 10px;
+            color: #a826ff;
+            text-align: right;
+            margin-top: 2px;
+            display: none;
+            font-family: var(--font-display);
+        }
+
+        .reschedule-box {
+            display: none;
+            border: 1px dashed var(--symbiote-purple);
+            padding: 6px;
+            margin-top: 6px;
+            border-radius: 4px;
+            background: rgba(168, 38, 255, 0.05);
+        }
+
+        .hud-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--spider-neon-red) 0%, #4a0012 100%);
+            color: white;
+            border: none;
+            padding: 0.8vh;
+            border-radius: 4px;
+            margin-top: 0.6vh;
+            font-family: var(--font-display);
+            font-weight: 900;
+            cursor: pointer;
+            letter-spacing: 1px;
+            font-size: calc(0.5rem + 0.25vw);
+            box-shadow: 0 0 1vh rgba(255, 0, 60, 0.25);
+            transition: all 0.2s;
+        }
+        .hud-btn:hover { box-shadow: var(--glow-red); }
+
+        .ticker-slider-container {
+            z-index: 10;
+            background: #000000;
+            border: 0.2vh solid var(--spider-neon-red);
+            box-shadow: var(--glow-red);
+            border-radius: 4px;
+            margin-top: 0.6vh;
+            padding: 0.4vh 1.2vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            height: 4vh;
+            min-height: 28px;
+            flex-shrink: 0;
+        }
+
+        .ticker-label {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: calc(0.42rem + 0.2vw);
+            color: var(--spider-neon-red);
+            border-right: 0.2vh solid var(--spider-neon-red);
+            padding-right: 0.8vw;
+            margin-right: 1.2vw;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        .ticker-track {
+            display: flex;
+            white-space: nowrap;
+            animation: slideLeft 22s linear infinite;
+        }
+
+        .ticker-item {
+            font-family: var(--font-sans);
+            font-weight: 700;
+            font-size: calc(0.5rem + 0.25vw);
+            color: #e2e8f0;
+            margin-right: 3.5vw;
+            display: flex;
+            align-items: center;
+            gap: 0.4vw;
+        }
+        .ticker-item i { color: var(--symbiote-purple); font-size: 0.65rem; }
+
+        .grid-scroller-viewport::-webkit-scrollbar { width: 8px; height: 8px; }
+        .grid-scroller-viewport::-webkit-scrollbar-track { background: #050508; }
+        .grid-scroller-viewport::-webkit-scrollbar-thumb { background: var(--spider-neon-red); border-radius: 4px; }
+        .grid-scroller-viewport::-webkit-scrollbar-thumb:hover { background: var(--symbiote-purple); }
+
+        .multiverse-gate-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .multiverse-gate-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .gate-secure-card {
+            background: #09090e;
+            border: 0.2vh solid var(--spider-neon-red);
+            box-shadow: var(--glow-red);
+            border-radius: 4px;
+            width: 320px;
+            max-width: 90vw;
+            padding: 3.5vh 4vw;
+            text-align: center;
+        }
+
+        .gate-secure-card i.gate-icon {
+            font-size: calc(1.3rem + 1.2vw);
+            color: var(--spider-neon-red);
+            margin-bottom: 1.5vh;
+        }
+
+        .gate-input-field {
+            width: 100%; background: #000000;
+            border: 0.2vh solid var(--spider-neon-red);
+            padding: 1vh; border-radius: 4px;
+            color: #ffffff; text-align: center;
+            font-family: var(--font-display);
+            font-size: calc(0.9rem + 0.4vw); margin: 1.5vh 0;
+            outline: none;
+            letter-spacing: 4px;
+        }
+
+        .gate-verify-btn {
+            width: 100%; background: var(--spider-neon-red);
+            color: #ffffff; font-family: var(--font-display); font-weight: 900;
+            padding: 1vh; border: none; border-radius: 4px; cursor: pointer;
+            letter-spacing: 1px; box-shadow: var(--glow-red);
+            font-size: calc(0.55rem + 0.25vw);
+        }
+
+        @keyframes smoothPendulum { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
+        @keyframes slideLeft { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+        @keyframes slideRight { 0% { transform: translateX(-50%); } 100% { transform: translateX(0%); } }
+        
+        .gate-error-shake { animation: executionFailureShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes executionFailureShake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        @media (max-width: 1024px) {
+            body { padding: 4px; }
+            .workspace-layout { gap: 4px; }
+            .fixed-sidebar-hud { width: 230px; min-width: 200px; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="web-canvas"></canvas>
+
+    <div class="film-ticker-belt">
+        <div class="belt-track-right">
+            <div class="belt-item">// MODE: MAXIMUM SYMBIOTE TELEMETRY STREAM OVERDRIVE</div>
+            <div class="belt-item">// LINK STATE: ENCRYPTED CORE RE-ROUTING</div>
+            <div class="belt-item">// SUBSYSTEMS: ONLINE // MATRIX SECURITY SHIELDED</div>
+            <div class="belt-item">// MODE: MAXIMUM SYMBIOTE TELEMETRY STREAM OVERDRIVE</div>
+            <div class="belt-item">// LINK STATE: ENCRYPTED CORE RE-ROUTING</div>
+            <div class="belt-item">// SUBSYSTEMS: ONLINE // MATRIX SECURITY SHIELDED</div>
+        </div>
+    </div>
+
+    <header>
+        <div class="brand-core">
+            <i class="fa-solid fa-spider"></i>
+            <div>
+                <h1>VOICE NATION // MULTIVERSE EDITION</h1>
+                <span style="font-size:calc(0.38rem + 0.15vw); color:var(--symbiote-purple); font-weight:bold; letter-spacing:1.5px; display:block; margin-top:0.1vh;">TACTICAL RECORD OVERRIDE LOG ENTRY ENGINE</span>
+            </div>
+        </div>
+        <div class="kpi-deck">
+            <div class="kpi-card">
+                <div class="lbl">Coupled Traces</div>
+                <div class="val" id="kpi-total">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="lbl">OS Core Pulse</div>
+                <div class="val" id="kpi-clock">DEPLOYING COMPILER...</div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="day-scroller">
+        <div class="day-node active" onclick="jumpMultiverseTimeline(this, 'MONDAY')">MON_NODE.cfg</div>
+        <div class="day-node" onclick="jumpMultiverseTimeline(this, 'TUESDAY')">TUE_NODE.cfg</div>
+        <div class="day-node" onclick="jumpMultiverseTimeline(this, 'WEDNESDAY')">WED_NODE.cfg</div>
+        <div class="day-node" onclick="jumpMultiverseTimeline(this, 'THURSDAY')">THU_NODE.cfg</div>
+        <div class="day-node" onclick="jumpMultiverseTimeline(this, 'FRIDAY')">FRI_NODE.cfg</div>
+    </nav>
+
+    <div class="workspace-layout">
+        
+        <div class="grid-core-container">
+            <div class="grid-scroller-viewport">
+                <div class="grid-matrix-table-frame">
+                    
+                    <div class="header-timeline-row">
+                        <div class="agent-axis-cell" style="color:var(--spider-neon-red)">Timeline</div>
+                        <div class="agent-axis-cell">Chati</div>
+                        <div class="agent-axis-cell">Saad</div>
+                        <div class="agent-axis-cell">Hamza</div>
+                        <div class="agent-axis-cell">Anika</div>
+                        <div class="agent-axis-cell">Hanzii</div>
+                        <div class="agent-axis-cell">Ibrahim</div>
+                        <div class="agent-axis-cell">Ali</div>
+                        <div class="agent-axis-cell">Hussain</div>
+                        <div class="agent-axis-cell">Amaani</div>
+                        <div class="agent-axis-cell">Agent 1</div>
+                        <div class="agent-axis-cell">Agent 2</div>
+                        <div class="agent-axis-cell">Agent 3</div>
+                        <div class="agent-axis-cell">Agent 4</div>
+                    </div>
+                    
+                    <div class="grid-matrix-body" id="matrix-grid-injector"></div>
+                
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed-sidebar-hud">
+            <div class="hud-static-title">
+                <i class="fa-solid fa-crosshairs"></i> TARGET TELEMETRY HUD
+            </div>
+            
+            <div class="hud-empty-placeholder" id="hud-placeholder">
+                <i class="fa-solid fa-fingerprint"></i>
+                <div>AWAITING ENCRYPTED DATA INPUT. ENGAGE ACTIVE NODE CELL CHANNELS TO RECOVER PROFILE OBJECTS.</div>
+            </div>
+
+            <div class="hud-data-profile" id="hud-profile-view">
+                <div class="hud-profile-scroll">
+                    <div class="hud-row"><span>Target Channel Slot</span><span id="hud-val-agent"></span></div>
+                    <div class="hud-row"><span>Operator Signal Source</span><span id="hud-val-by"></span></div>
+                    <div class="hud-row"><span>Target Subject Name</span><span id="hud-val-customer"></span></div>
+                    <div class="hud-row"><span>Secure Routing Line</span><span id="hud-val-phone"></span></div>
+                    <div class="hud-row"><span>Subject Chronology Log</span><span id="hud-val-dob"></span></div>
+                    <div class="hud-row"><span>Operation Field Notes</span><span id="hud-val-notes"></span></div>
+                    <div class="hud-row"><span>Trace Connection State</span><span id="hud-val-outcome" style="color:var(--spider-neon-red)"></span></div>
+                    
+                    <!-- Display Mandatory Comment field on Dashboard HUD -->
+                    <div class="hud-row" id="hud-row-status-comment" style="display: none;"><span>Disposition Comment</span><span id="hud-val-status-comment" style="color:var(--status-yellow-bg)"></span></div>
+                </div>
+
+                <div style="border-top: 0.2vh solid var(--spider-neon-red); padding-top: 0.8vh;">
+                    <select class="hud-select" id="hud-action-trigger" onchange="toggleCommentBox()">
+                        <option value="">Select Mutation Transformation...</option>
+                        <option value="On Call">On Call</option>
+                        <option value="Customer not interested">Customer not interested</option>
+                        <option value="Form Completed">Form Completed</option>
+                        <option value="Customer didn’t pick up">Customer didn’t pick up</option>
+                        <option value="Reschedule Appointment">Reschedule Appointment</option>
+                        <option value="Does not qualify">Does not qualify</option>
+                    </select>
+
+                    <!-- Interactive Reschedule Form Controls -->
+                    <div class="reschedule-box" id="reschedule-controls">
+                        <span style="font-size:10px; color:var(--symbiote-purple); font-weight:bold; font-family:var(--font-display);">RESCHEDULE TARGET SLOT:</span>
+                        <select class="hud-select" id="reschedule-day">
+                            <option value="MONDAY">MONDAY</option>
+                            <option value="TUESDAY">TUESDAY</option>
+                            <option value="WEDNESDAY">WEDNESDAY</option>
+                            <option value="THURSDAY">THURSDAY</option>
+                            <option value="FRIDAY">FRIDAY</option>
+                        </select>
+                        <select class="hud-select" id="reschedule-time">
+                            <option value="9:15 AM">9:15 AM</option>
+                            <option value="10:15 AM">10:15 AM</option>
+                            <option value="11:30 AM">11:30 AM</option>
+                            <option value="12:45 PM">12:45 PM</option>
+                            <option value="1:45 PM">1:45 PM</option>
+                            <option value="3:00 PM">3:00 PM</option>
+                            <option value="4:15 PM">4:15 PM</option>
+                            <option value="5:00 PM">5:00 PM</option>
+                        </select>
+                        <select class="hud-select" id="reschedule-agent">
+                            <option value="Chati">Chati</option>
+                            <option value="Saad">Saad</option>
+                            <option value="Hamza">Hamza</option>
+                            <option value="Anika">Anika</option>
+                            <option value="Hanzii">Hanzii</option>
+                            <option value="Ibrahim">Ibrahim</option>
+                            <option value="Ali">Ali</option>
+                            <option value="Hussain">Hussain</option>
+                            <option value="Amaani">Amaani</option>
+                            <option value="Agent 1">Agent 1</option>
+                            <option value="Agent 2">Agent 2</option>
+                            <option value="Agent 3">Agent 3</option>
+                            <option value="Agent 4">Agent 4</option>
+                        </select>
+                    </div>
+
+                    <textarea class="hud-textarea" id="hud-comment-input" rows="3" placeholder="Enter mandatory disposition comment (Minimum 20 characters)..." oninput="updateCharCount()"></textarea>
+                    <div class="char-counter" id="char-counter-display">Characters: 0 / 20</div>
+
+                    <button class="hud-btn" onclick="triggerSecurityLockoutGate()">MUTATE DATA STATE</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="ticker-slider-container">
+        <div class="ticker-label"><i class="fa-solid fa-satellite-dish"></i> DATA SENSE STATUS</div>
+        <div class="ticker-track">
+            <div class="ticker-item"><i class="fa-solid fa-circle-nodes"></i> RE-ENGINEERED SYMBIOTE TERMINAL PIPELINE RUNNING STABLE.</div>
+            <div class="ticker-item"><i class="fa-solid fa-biohazard"></i> SYSTEM SIMULATION INJECTED VIA PREMIUM DATA ARRAYS.</div>
+            <div class="ticker-item"><i class="fa-solid fa-fingerprint"></i> AUTH PIN PASSPHRASE DECRYPT KEY CONFIG: spidey123.</div>
+            <div class="ticker-item"><i class="fa-solid fa-circle-nodes"></i> RE-ENGINEERED SYMBIOTE TERMINAL PIPELINE RUNNING STABLE.</div>
+            <div class="ticker-item"><i class="fa-solid fa-biohazard"></i> SYSTEM SIMULATION INJECTED VIA PREMIUM DATA ARRAYS.</div>
+            <div class="ticker-item"><i class="fa-solid fa-fingerprint"></i> AUTH PIN PASSPHRASE DECRYPT KEY CONFIG: spidey123.</div>
+        </div>
+    </div>
+
+    <div class="multiverse-gate-overlay" id="security-verification-screen">
+        <div class="gate-secure-card" id="gate-secure-wrapper">
+            <i class="fa-solid fa-triangle-exclamation gate-icon"></i>
+            <h2 style="font-family:var(--font-display); font-size:1rem; color:#ffffff; letter-spacing:1px;">CRITICAL SEQUENCE FORCE</h2>
+            <p style="font-size:0.7rem; color:#64748b; margin-top:0.4vh;">Authorize secure validation clearance code sequence to commit sheet data modifications</p>
+            <input type="password" class="gate-input-field" id="clearance-key" placeholder="••••">
+            <button class="gate-verify-btn" onclick="verifyClearanceKeyAndExecute()">DEPLOY MASTER CHANGE</button>
+        </div>
+    </div>
+
+    <script>
+        const shifts = ["9:15 AM", "10:15 AM", "11:30 AM", "12:45 PM", "1:45 PM", "3:00 PM", "4:15 PM", "5:00 PM"];
+        const gridAgents = ["Chati", "Saad", "Hamza", "Anika", "Hanzii", "Ibrahim", "Ali", "Hussain", "Amaani", "Agent 1", "Agent 2", "Agent 3", "Agent 4"];
+        
+        let timelineDayState = "MONDAY";
+        let memoryMatrixCache = {};
+        let operationalFocusTarget = null;
+
+        const canvas = document.getElementById('web-canvas');
+        const ctx = canvas.getContext('2d');
+        function adjustCanvasBounds() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        adjustCanvasBounds();
+        window.addEventListener('resize', adjustCanvasBounds);
+
+        let anchorPoints = [];
+        for(let i=0; i<24; i++) {
+            anchorPoints.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 1.3,
+                vy: (Math.random() - 0.5) * 1.3
+            });
+        }
+
+        function computeRadarWebPhysics() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(168, 38, 255, 0.15)';
+            ctx.lineWidth = 1.5;
+            anchorPoints.forEach(pt => {
+                pt.x += pt.vx; pt.y += pt.vy;
+                if(pt.x < 0 || pt.x > canvas.width) pt.vx *= -1;
+                if(pt.y < 0 || pt.y > canvas.height) pt.vy *= -1;
+            });
+            for(let i=0; i<anchorPoints.length; i++) {
+                for(let j=i+1; j<anchorPoints.length; j++) {
+                    let distance = Math.hypot(anchorPoints[i].x - anchorPoints[j].x, anchorPoints[i].y - anchorPoints[j].y);
+                    if(distance < 240) {
+                        ctx.beginPath(); ctx.moveTo(anchorPoints[i].x, anchorPoints[i].y);
+                        ctx.lineTo(anchorPoints[j].x, anchorPoints[j].y); ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(computeRadarWebPhysics);
+        }
+        computeRadarWebPhysics();
+
+        function toggleCommentBox() {
+            const val = document.getElementById('hud-action-trigger').value;
+            const commentInput = document.getElementById('hud-comment-input');
+            const counterDisplay = document.getElementById('char-counter-display');
+            const rescheduleControls = document.getElementById('reschedule-controls');
+
+            if (val === "Customer not interested" || val === "Does not qualify" || val === "Reschedule Appointment") {
+                commentInput.style.display = 'block';
+                counterDisplay.style.display = 'block';
+                updateCharCount();
+            } else {
+                commentInput.style.display = 'none';
+                counterDisplay.style.display = 'none';
+                commentInput.value = "";
+            }
+
+            if (val === "Reschedule Appointment") {
+                rescheduleControls.style.display = 'block';
+            } else {
+                rescheduleControls.style.display = 'none';
+            }
+        }
+
+        function updateCharCount() {
+            const commentVal = document.getElementById('hud-comment-input').value;
+            const chars = commentVal.length;
+            const counterDisplay = document.getElementById('char-counter-display');
+            counterDisplay.innerText = `Characters: ${chars} / 20`;
+            counterDisplay.style.color = chars >= 20 ? "#00ff66" : "#ff003c";
+        }
+
+        function assembleCyberGrid() {
+            const container = document.getElementById('matrix-grid-injector');
+            container.innerHTML = "";
+            
+            const yellowSpiderWebSvg = `
+                <svg class="web-icon" viewBox="0 0 24 24">
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <line x1="1" y1="12" x2="23" y2="12" />
+                    <line x1="3.5" y1="3.5" x2="20.5" y2="20.5" />
+                    <line x1="20.5" y1="3.5" x2="3.5" y2="20.5" />
+                    <path d="M 12,3 Q 18,3 21,12 Q 18,21 12,21 Q 3,21 3,12 Q 6,3 12,3 Z" />
+                    <path d="M 12,6 Q 16,6 18,12 Q 16,18 12,18 Q 6,18 6,12 Q 8,6 12,6 Z" />
+                    <path d="M 12,8.5 Q 14.5,8.5 15.5,12 Q 14.5,15.5 12,15.5 Q 9.5,15.5 8.5,12 Q 9.5,8.5 12,8.5 Z" />
+                </svg>
+                <div class="na-pulse-text">NOT AVAILABLE</div>
+            `;
+
+            const shockingPinkSpiderWebSvg = `
+                <svg class="pink-web-anim" viewBox="0 0 24 24">
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <line x1="1" y1="12" x2="23" y2="12" />
+                    <line x1="3.5" y1="3.5" x2="20.5" y2="20.5" />
+                    <line x1="20.5" y1="3.5" x2="3.5" y2="20.5" />
+                    <path d="M 12,2 Q 19,2 22,12 Q 19,22 12,22 Q 2,22 2,12 Q 5,2 12,2 Z" />
+                    <path d="M 12,5 Q 17,5 19,12 Q 17,19 12,19 Q 5,19 5,12 Q 7,5 12,5 Z" />
+                    <path d="M 12,8 Q 15,8 16.5,12 Q 15,16 12,16 Q 9,16 7.5,12 Q 9,8 12,8 Z" />
+                </svg>
+            `;
+
+            shifts.forEach(time => {
+                const row = document.createElement('div');
+                row.className = 'timeline-row';
+                
+                const timeAxis = document.createElement('div');
+                timeAxis.className = 'time-axis-node';
+                timeAxis.innerText = time;
+                row.appendChild(timeAxis);
+                
+                gridAgents.forEach(agent => {
+                    const cellSlot = document.createElement('div');
+                    cellSlot.className = 'matrix-cell-slot';
+                    
+                    const systemKey = `${timelineDayState}||${time}||${agent}`;
+                    const slotRecord = memoryMatrixCache[systemKey];
+                    
+                    const card = document.createElement('div');
+                    
+                    if (time === "5:00 PM" && agent !== "Hussain" && agent !== "Amaani") {
+                        card.className = 'spidey-suit-card suit-disabled';
+                        card.innerHTML = yellowSpiderWebSvg;
+                    } else if (slotRecord && !slotRecord.isFree) {
+                        card.className = 'spidey-suit-card suit-booked';
+
+                        const cleanOutcome = String(slotRecord.outcome).trim().toLowerCase();
+                        
+                        if (cleanOutcome === "on call") {
+                            card.classList.add('suit-on-call');
+                        } else if (cleanOutcome === "customer not interested") {
+                            card.classList.add('suit-not-interested');
+                        } else if (cleanOutcome.includes("pick up")) {
+                            card.classList.add('suit-no-pickup');
+                        } else if (
+                            cleanOutcome.includes("form") || 
+                            cleanOutcome.includes("complete") || 
+                            cleanOutcome.includes("gone through") || 
+                            cleanOutcome.includes("done")
+                        ) {
+                            if (!cleanOutcome.includes("reschedule") && !cleanOutcome.includes("pending")) {
+                                card.classList.add('suit-form-completed');
+                            }
+                        } else if (cleanOutcome === "does not qualify") {
+                            card.classList.add('suit-does-not-qualify');
+                        } else if (cleanOutcome.includes("reschedule")) {
+                            card.classList.add('suit-reschedule');
+                        }
+
+                        if(operationalFocusTarget && operationalFocusTarget.day === slotRecord.day && operationalFocusTarget.timeSlot === slotRecord.timeSlot && operationalFocusTarget.bookedFor === slotRecord.bookedFor) {
+                            card.classList.add('suit-active-focus');
+                        }
+
+                        if (cleanOutcome === "on call") {
+                            card.innerHTML = `
+                                ${shockingPinkSpiderWebSvg}
+                                <span class="suit-val">${slotRecord.customerName}</span>
+                                <span class="suit-lbl">${slotRecord.outcome}</span>
+                            `;
+                        } else {
+                            card.innerHTML = `
+                                <span class="suit-val">${slotRecord.customerName}</span>
+                                <span class="suit-lbl">${slotRecord.outcome}</span>
+                            `;
+                        }
+
+                        card.onclick = () => lockTracerProfile(card, slotRecord);
+                    } else {
+                        card.className = 'spidey-suit-card suit-free';
+                        card.innerHTML = `<span class="suit-lbl">FREE CHANNEL</span>`;
+                    }
+                    
+                    cellSlot.appendChild(card);
+                    row.appendChild(cellSlot);
+                });
+                
+                container.appendChild(row);
+            });
+        }
+
+        function lockTracerProfile(targetElement, data) {
+            document.querySelectorAll('.spidey-suit-card').forEach(c => c.classList.remove('suit-active-focus'));
+            targetElement.classList.add('suit-active-focus');
+            
+            operationalFocusTarget = data;
+            
+            document.getElementById('hud-val-agent').innerText = data.bookedFor;
+            document.getElementById('hud-val-by').innerText = data.bookedBy;
+            document.getElementById('hud-val-customer').innerText = data.customerName;
+            document.getElementById('hud-val-phone').innerText = data.customerNumber;
+            document.getElementById('hud-val-dob').innerText = data.dob;
+            document.getElementById('hud-val-notes').innerText = data.notes;
+            document.getElementById('hud-val-outcome').innerText = data.outcome;
+
+            // Render status comment if present
+            const commentRow = document.getElementById('hud-row-status-comment');
+            if (data.statusComment) {
+                document.getElementById('hud-val-status-comment').innerText = data.statusComment;
+                commentRow.style.display = 'flex';
+            } else {
+                commentRow.style.display = 'none';
+            }
+
+            document.getElementById('hud-action-trigger').value = "";
+            document.getElementById('hud-comment-input').value = "";
+            document.getElementById('hud-comment-input').style.display = 'none';
+            document.getElementById('char-counter-display').style.display = 'none';
+            document.getElementById('reschedule-controls').style.display = 'none';
+            
+            document.getElementById('hud-placeholder').style.display = 'none';
+            document.getElementById('hud-profile-view').style.display = 'flex';
+        }
+
+        function jumpMultiverseTimeline(tab, day) {
+            document.querySelectorAll('.day-node').forEach(n => n.classList.remove('active'));
+            tab.classList.add('active');
+            timelineDayState = day;
+            
+            document.getElementById('hud-placeholder').style.display = 'flex';
+            document.getElementById('hud-profile-view').style.display = 'none';
+            operationalFocusTarget = null;
+            
+            assembleCyberGrid();
+        }
+
+        function triggerSecurityLockoutGate() {
+            const val = document.getElementById('hud-action-trigger').value;
+            const commentVal = document.getElementById('hud-comment-input').value.trim();
+
+            if (!val) { 
+                alert("Identify mutation profile state transformation vector first."); 
+                return; 
+            }
+
+            // Strict Validation for Mandatory 20+ Character Comment
+            if (val === "Customer not interested" || val === "Does not qualify" || val === "Reschedule Appointment") {
+                const chars = commentVal.length;
+                if (chars < 20) {
+                    alert(`A mandatory comment of AT LEAST 20 characters is required for '${val}'.\n\nCurrent Character Count: ${chars} characters.`);
+                    document.getElementById('hud-comment-input').focus();
+                    return;
+                }
+            }
+
+            document.getElementById('security-verification-screen').classList.add('active');
+            document.getElementById('clearance-key').focus();
+        }
+
+        function verifyClearanceKeyAndExecute() {
+            const keyInput = document.getElementById('clearance-key');
+            const boxWrapper = document.getElementById('gate-secure-wrapper');
+            
+            if (keyInput.value === "spidey123") {
+                boxWrapper.style.borderColor = "#00ff66";
+                boxWrapper.style.boxShadow = "0 0 25px #00ff66";
+                setTimeout(() => {
+                    document.getElementById('security-verification-screen').classList.remove('active');
+                    keyInput.value = "";
+                    executeRemotePipelineMutation();
+                }, 400);
+            } else {
+                boxWrapper.classList.add('gate-error-shake');
+                keyInput.value = "";
+                setTimeout(() => boxWrapper.classList.remove('gate-error-shake'), 400);
+            }
+        }
+
+        function executeRemotePipelineMutation() {
+            const mutationTargetValue = document.getElementById('hud-action-trigger').value;
+            const commentValue = document.getElementById('hud-comment-input').value.trim();
+
+            operationalFocusTarget.outcome = mutationTargetValue;
+            operationalFocusTarget.statusComment = commentValue;
+
+            if (mutationTargetValue === "Reschedule Appointment") {
+                const resDay = document.getElementById('reschedule-day').value;
+                const resTime = document.getElementById('reschedule-time').value;
+                const resAgent = document.getElementById('reschedule-agent').value;
+
+                operationalFocusTarget.rescheduleDetails = {
+                    newDay: resDay,
+                    newTime: resTime,
+                    newAgent: resAgent
+                };
+            }
+            
+            const uniqueLocKey = `${operationalFocusTarget.day.toUpperCase()}||${operationalFocusTarget.timeSlot}||${operationalFocusTarget.bookedFor}`;
+            memoryMatrixCache[uniqueLocKey] = operationalFocusTarget;
+            
+            document.getElementById('hud-placeholder').style.display = 'flex';
+            document.getElementById('hud-profile-view').style.display = 'none';
+            assembleCyberGrid();
+            
+            if (typeof google !== 'undefined') {
+                google.script.run.withSuccessHandler(function() {
+                    refreshTerminalEngine();
+                }).commitStatusUpdate(operationalFocusTarget);
+            }
+        }
+
+        function refreshTerminalEngine() {
+            if (typeof google !== 'undefined') {
+                google.script.run.withSuccessHandler(function(bundle) {
+                    memoryMatrixCache = bundle.bookings;
+                    document.getElementById('kpi-total').innerText = bundle.stats.todayCount;
+                    document.getElementById('kpi-clock').innerText = bundle.stats.lastSync;
+                    assembleCyberGrid();
+                }).getDashboardData();
+            }
+        }
+
+        window.onload = () => {
+            refreshTerminalEngine();
+            setInterval(refreshTerminalEngine, 30000);
+        };
+    </script>
+</body>
+</html>
